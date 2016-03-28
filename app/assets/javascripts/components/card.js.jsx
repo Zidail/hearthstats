@@ -1,23 +1,51 @@
-var Card = React.createClass({
-	getInitialState: function(){
-		var cn = this.props.card.name.trim().replace(/[^a-zA-Z0-9-\s-\']/g, '').replace(/[^a-zA-Z0-9-]/g, '-').replace(/--/g, '-').toLowerCase();
-		if(cn=="si7-agent"){ 
-			cn = "si-7-agent";
-		}
-		return{
-			hasLoaded: false,
-			imgSrc: "//s3.amazonaws.com/hearthstatsprod/full_card/" + cn +".png"
-		}
-	},
-	componentDidMount: function(){
-		this.setState({ hasLoaded: true });
-	},
-	render: function(){ 
-		return (
-			<img src={this.state.hasLoaded ? this.state.imgSrc : "/assets/blind_draft/deckbuilder-card-back.png"} className={"deckbuilder-img " + this.props.cName} onClick={this.handleClick}/>
-		);
-	},
-	handleClick: function(event) {
-		this.props.click(event);
-	}
-});
+import React from 'react';
+
+export default class Card extends React.Component {
+
+  constructor(props) {
+    super(props);
+
+    let { card } = this.props;
+    cardName = card.name
+                .trim()
+                .replace(/[^a-zA-Z0-9-\s-\']/g, '')
+                .replace(/[^a-zA-Z0-9-]/g, '-')
+                .replace(/--/g, '-')
+                .toLowerCase();
+
+    cardName = cardName === 'si7-agent' && 'si-7-agent';
+
+    const imgSrc = `//s3.amazonaws.com/hearthstatsprod/full_card/${cn}.png`
+
+    this.state = {
+      hasLoaded: false,
+      imgSrc: imgSrc,
+    }
+
+    this._handleClick = this._handleClick.bind(this);
+  }
+
+  componentDidMount() {
+    this.setState({
+      hasLoaded: true,
+    });
+  }
+
+  _handleClick(event) {
+    const { click } = this.props;
+
+    click(event);
+  }
+
+  render() {
+    const { hasLoaded, imgSrc } = this.state;
+    const { cName } = this.props;
+
+    const className = `deckbuilder-img ${cname}`;
+    const imageSource = hasLoaded ? imgSrc : '/assets/blind_draft/deckbuilder-card-back.png';
+
+    return (
+      <img src={imageSource} className={className} onClick={this._handleClick} />
+    );
+  }
+}
