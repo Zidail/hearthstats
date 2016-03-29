@@ -43,7 +43,7 @@ class Card extends React.Component {
     const imageSource = hasLoaded ? imgSrc : '/assets/blind_draft/deckbuilder-card-back.png';
 
     return (
-      <img key={Math.random()} src={imageSource} className={className} onClick={this._handleClick} />
+      <img src={imageSource} className={className} onClick={this._handleClick} />
     );
   }
 }
