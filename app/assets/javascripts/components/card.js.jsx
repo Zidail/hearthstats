@@ -11,7 +11,7 @@ class Card extends React.Component {
                  .replace(/--/g, '-')
                  .toLowerCase();
 
-    cardName = cardName === 'si7-agent' && 'si-7-agent';
+    cardName = cardName === 'si7-agent' ? 'si-7-agent' : cardName;
 
     const imgSrc = `//s3.amazonaws.com/hearthstatsprod/full_card/${cardName}.png`
 
@@ -43,7 +43,7 @@ class Card extends React.Component {
     const imageSource = hasLoaded ? imgSrc : '/assets/blind_draft/deckbuilder-card-back.png';
 
     return (
-      <img src={imageSource} className={className} onClick={this._handleClick} />
+      <img key={Math.random()} src={imageSource} className={className} onClick={this._handleClick} />
     );
   }
 }
