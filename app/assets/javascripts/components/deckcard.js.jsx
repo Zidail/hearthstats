@@ -1,74 +1,114 @@
-var DeckCard = React.createClass({
-	getInitialState: function(){
-		return{
-			hover: false
+class DeckCard extends React.Component {
+
+	constructor(props) {
+		super(props);
+
+		this.state = {
+			hover: false,
 		}
-	},
-	mouseOver: function(event){
-		var deckImageStyle = {
+
+		this._mouseOut = this._mouseOut.bind(this);
+		this._onClick = this._onClick.bind(this);
+	}
+
+	_mouseOver(event) {
+		const { clientX, clientY } = event;
+		const { scrollY, innerHeight } = window;
+
+		let deckImageStyle = {
 			height: '300px',
-			left: event.clientX + 40 + 'px',
-			top: event.clientY + 20 +'px',
+			left: `${clientX + 40}px`,
 			position: 'fixed',
-			zIndex: '2000'};
-		if(event.clientY + 500 > window.scrollY + window.innerHeight){
-			deckImageStyle = {
-				height: '300px',
-				left: event.clientX + 40 + 'px',
-				bottom: '5px',
-				position: 'fixed',
-				zIndex: '2000'};
-		}
-		this.setState({hover: true, deckImageStyle: deckImageStyle})
-	},
-	mouseOut: function(){
-		return function(){this.setState({
-			hover: false, deckImageStyle: null
-		})}.bind(this);
-	},
-	render: function(){ 
-		cn = this.props.card.name.trim().replace(/[^a-zA-Z0-9-\s-\']/g, '').replace(/[^a-zA-Z0-9-]/g, '-').replace(/--/g, '-').toLowerCase();
-		if(cn=="si7-agent"){ 
-			cn = "si-7-agent";
-		}
-		cardClass = "card cardWrapper "
-		wrapperClass = "normal"; 
-		if(this.props.qty == 2){ wrapperClass = "two"; }
-		else if(this.props.card.rarity_id == 5){ wrapperClass = "legendary"; }
-		cardClass = cardClass + wrapperClass;
+			zIndex: '2000',
+		};
 
-		var fullDeckImage = null;
-		if(this.state.hover){
-			fullDeckImage = <img 
-				id="deckBuilderFullCardView" 
-				key={this.props.card.id} 
-				ref="fullDeckImage" 
-				src={"//s3.amazonaws.com/hearthstatsprod/full_card/"+cn+".png"} 
-				style={this.state.deckImageStyle} />;
+		if (clientY + 500 > scrollY + innerHeight) {
+			deckImageStyle.top = `${clientY + 20}px`
+		} else {
+			deckImageStyle.bottom = '5px';
 		}
 
-		return (
-			<div onMouseOver={this.mouseOver} onMouseOut={this.mouseOut()}>
-				<div onClick={this.handleClick} key={cn} alt={cn} className={cardClass}>
-					<div className="mana">
-						{this.props.card.mana}
-					</div>
-					<div className="name">
-						{this.props.card.name}
-					</div>
-					<div className="qty">{this.props.qty}
-					</div>
-					<img src={"//s3.amazonaws.com/hearthstatsprod/deck_images/" + cn +".png"} className="image"/>
-					<div className="bg">
-					</div>
-				</div>
-				{fullDeckImage}
-			</div>
-		);
-	},
-	handleClick: function(event) {
-		if(this.props.type=="edit"){
-			this.props.click(event);
+		this.setState({
+			hover: true,
+			deckImageStyle: deckImageStyle,
+		});
+	}
+
+	_mouseOut() {
+		this.setState({
+			hover: false,
+			deckImageStyle: null,
+		});
+	}
+
+	_onClick(event) {
+		const { type, click } = this.props;
+
+		if (type === 'edit') {
+			click(event);
 		}
 	}
-});
+
+	_renderFullCardView(value, id, cardName, deckImageStyle, src) {
+		if (value) {
+			const fullDeckImage = <img
+															id="deckBuilderFullCardView"
+															key={id}
+															ref="fullDeckImage"
+															src={src}
+															style={deckImageStyle}
+														/>;
+
+			return fullDeckImage;
+		}
+	}
+
+	render() {
+		let { qty, card } = this.props;
+		let { name, mana, id, rarity_id } = card;
+		let { hover, deckImageStyle } = this.state;
+    let cardName = name
+                 .trim()
+                 .replace(/[^a-zA-Z0-9-\s-\']/g, '')
+                 .replace(/[^a-zA-Z0-9-]/g, '-')
+                 .replace(/--/g, '-')
+                 .toLowerCase();
+
+    cardName = cardName === 'si7-agent' ? 'si-7-agent' : cardName;
+
+    let wrapperClass;
+
+    if (qty === 2) {
+    	wrapperClass = 'two';
+    } else if (qty === 5) {
+    	wrapperClass = 'legendary';
+    } else {
+    	wrapperClass = 'normal';
+    }
+
+    const cardClass = `card cardWrapper ${wrapperClass}`;
+    const baseUrl = '//s3.amazonaws.com/hearthstatsprod/';
+    const fullImgUrl = `${baseUrl}full_card/${cardName}.png`;
+    const thumbImgUrl = `${baseUrl}deck_images/${cardName}.png`;
+
+    return(
+    	<div onMouseOver={this._mouseOver} onMouseOut={this._mouseOut}>
+    		<div onClick={this._onClick} key={cardName} alt={cardName} className={cardClass}>
+    			<div className="mana">
+    				{mana}
+    			</div>
+    			<div className="name">
+    				{name}
+    			</div>
+    			<div className="qty">
+    				{qty}
+    			</div>
+    			<img src={thumbImgUrl} className="image" />
+    			<div className="bg" />
+    		</div>
+    		{ this._renderFullCardView(hover, id, cardName, deckImageStyle, fullImgUrl); }
+    	</div>
+    );
+	}
+}
+
