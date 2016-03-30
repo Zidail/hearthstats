@@ -8,6 +8,7 @@ class DeckCard extends React.Component {
 		}
 
 		this._mouseOut = this._mouseOut.bind(this);
+		this._mouseOver = this._mouseOver.bind(this);
 		this._onClick = this._onClick.bind(this);
 	}
 
@@ -106,7 +107,7 @@ class DeckCard extends React.Component {
     			<img src={thumbImgUrl} className="image" />
     			<div className="bg" />
     		</div>
-    		{ this._renderFullCardView(hover, id, cardName, deckImageStyle, fullImgUrl); }
+    		{ this._renderFullCardView(hover, id, cardName, deckImageStyle, fullImgUrl) }
     	</div>
     );
 	}
