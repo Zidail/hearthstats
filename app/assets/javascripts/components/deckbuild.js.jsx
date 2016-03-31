@@ -1,63 +1,86 @@
-var DeckBuild = React.createClass({
-	// props: all_cards, cards, klasses, archtypes, deck
-	getInitialState: function(){
-		return{
-			cardstring: "",
-			chosenKlass: this.props.klass,
-			deck: this.props.deck,
-			klassSelected: this.props.deck != null && this.props.deck.klass_id != null,
-			moveOn: false,
-			editBack: false
-		};
-	},
-	componentWillMount: function(){
-		if(this.props.type == "edit"){
-			this.setState({
-				chosenKlass: this.props.deck.klass_id,
-				cardstring: this.props.deck.cardstring
-			});
-		}
-	},
-  render: function(){
-  	// if class is already selected, move onto choosing cards 
-  	// 		ie: already chosen class or deck is already created and just editing
-  	if(this.state.klassSelected && !this.state.moveOn){ 
-  		return(
-				<div>
-					<CardSelect editBack={this.state.editBack} cardstring={this.state.cardstring} klass={this.state.chosenKlass} cards={this.props.cards} submitClick={this.handleCardsSelect} deck={this.props.deck} type={this.props.type} />
-				</div>
-  		);
-  	} else{ 
-			return(
-				<DetailSelect 
-					type = {this.props.type} 
-					currentVersion = {this.props.currentVersion} 
-					deck = {this.props.deck} 
-					klass = {this.state.chosenKlass} 
-					backButton = {this.handleCardResubmit} 
-					cards = {this.props.cards} 
-					archtype = {this.props.archtypes} 
-					cardstring = {this.state.cardstring}/> );
-		}
-	},
-	handleKlassSelect: function(klass_id){
-		return function(event){
-			this.setState({
-				chosenKlass: klass_id,
-				klassSelected: true
-			})
-		}.bind(this);
-	},
-	handleCardsSelect: function(cardstringText){
-		this.setState({
-      cardstring: cardstringText,
-      moveOn: true
-    })
-	},
-	handleCardResubmit: function(){
-		this.setState({
-			moveOn: false,
-			editBack: true
-		});
-	}
-});
+class DeckBuild extends React.Component {
+
+  constructor(props) {
+    super(props);
+    const { klass, deck } = this.props;
+
+    this.state = {
+      cardstring: '',
+      chosenKlass: klass,
+      deck: deck,
+      klassSelected: deck != null && deck.klass_id != null,
+      moveOn: false,
+      editBack: false,
+    };
+
+    this._handleKlassSelect = this._handleKlassSelect.bind(this);
+    this._handleCardSelect = this._handleCardSelect.bind(this);
+    this._handleCardResubmit = this._handleCardResubmit.bind(this);
+    this._renderDetailSelect = this._renderDetailSelect.bind(this);
+    this._renderCardSelect = this._renderCardSelect(this);
+  }
+
+  componentWillMount() {
+    const { type, deck } = this.props;
+    const { klass_id, cardstring } = deck;
+
+    if (type === 'edit') {
+      this.setState({
+        cardstring,
+        chosenKlass: klass_id,
+      });
+    }
+  }
+
+  _handleKlassSelect(klass_id) {
+    this.setState({
+      chosenKlass: klass_id,
+      klassSelected: true
+    });
+  }
+
+  _handleCardSelect(cardstringText) {
+    this.setState({
+      crdstring: cardstringText,
+      moveOn: true,
+    });
+  }
+
+  _handleCardResubmit() {
+    this.setState({
+      moveOn: false,
+      editBack: true,
+    });
+  }
+
+  _renderDetailSelect() {
+    const { type, currentVersion, deck, cards, archtypes } = this.props;
+    const { chosenKlass, cardstring } = this.state;
+
+    const detailSelect = <DetailSelect {...{ type, currentVersion, deck, cards, cardstring }} klass={chosenKlass} archtype={archtypes} backButton={this._handleCardResubmit} />;
+
+    return detailSelect;
+  }
+
+  _renderCardSelect() {
+    const { editBack, cardstring, chosenKlass, } = this.state;
+    const { cards, deck, type } = this.props;
+
+    const cardSelect = <div>
+                         <CardSelect {... { editBack, cardstring, cards, deck, type }} klass={chosenKlass} submitClick={this._handleCardSelect}
+                         />
+                       </div>;
+
+    return cardSelect;
+  }
+
+  render() {
+    const { klassSelected, moveOn } = this.state;
+
+    if (klassSelected && !moveOn) {
+      return(this._renderCardSelect);
+    } else {
+      return(this._renderDetailSelect);
+    }
+  }
+}
