@@ -18,7 +18,7 @@ class Card extends React.Component {
     this.state = {
       hasLoaded: false,
       imgSrc: imgSrc,
-    }
+    };
 
     this._handleClick = this._handleClick.bind(this);
   }

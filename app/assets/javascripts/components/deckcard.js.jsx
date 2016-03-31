@@ -5,7 +5,7 @@ class DeckCard extends React.Component {
 
 		this.state = {
 			hover: false,
-		}
+		};
 
 		this._mouseOut = this._mouseOut.bind(this);
 		this._mouseOver = this._mouseOver.bind(this);
